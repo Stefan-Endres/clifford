@@ -621,9 +621,9 @@ class Layout(object):
             if self.bladeTupList.count(blade) != 1:
                 raise ValueError("blades not unique")
 
-        # check for right dimensionality
-        if len(self.bladeTupList) != 2**self.dims:
-            raise ValueError("incorrect number of blades")
+        # check for right dimensionality #TODO: Find replacement
+        #if len(self.bladeTupList) != 2**self.dims:
+        #    raise ValueError("incorrect number of blades")
 
         # check for valid ranges of indices
         valid = list(range(self.firstIdx, self.firstIdx + self.dims))
@@ -2116,7 +2116,7 @@ def comb(n, k):
     return int(fact(n)/(fact(k)*fact(n - k)))
 
 
-def elements(dims, firstIdx=0):
+def elements(dims, firstIdx=0, kr=None):
     """Return a list of tuples representing all 2**dims of blades
     in a dims-dimensional GA.
 
@@ -2126,8 +2126,10 @@ def elements(dims, firstIdx=0):
     indcs = list(range(firstIdx, firstIdx + dims))
 
     blades = [()]
+    if kr is None:
+        kr = range(1, dims+1)
 
-    for k in range(1, dims+1):
+    for k in kr:
         # k = grade
 
         if k == 1:
@@ -2167,7 +2169,8 @@ def elements(dims, firstIdx=0):
     return blades
 
 
-def Cl(p=0, q=0, sig=None, names=None, firstIdx=1, mvClass=MultiVector):
+def Cl(p=0, q=0, sig=None, names=None, firstIdx=1, mvClass=MultiVector,
+       kr=None):
     """Returns a Layout and basis blades for the geometric algebra Cl_p,q.
 
     The notation Cl_p,q means that the algebra is p+q dimensional, with
@@ -2175,11 +2178,13 @@ def Cl(p=0, q=0, sig=None, names=None, firstIdx=1, mvClass=MultiVector):
     negative.
 
     Cl(p, q=0, names=None, firstIdx=0) --> Layout, {'name': basisElement, ...}
+
+    Use kr to define subspace of blades
     """
     if sig is None:
         sig = [+1]*p + [-1]*q
-    bladeTupList = elements(len(sig), firstIdx)
 
+    bladeTupList = elements(len(sig), firstIdx, kr)
     layout = Layout(sig, bladeTupList, firstIdx=firstIdx, names=names)
     blades = bases(layout, mvClass)
 
