@@ -479,8 +479,9 @@ class Layout(object):
         the tensor g_ijk discussed above.
     """
 
-    def __init__(self, sig, bladeTupList, firstIdx=0, names=None):
+    def __init__(self, sig, bladeTupList, firstIdx=0, names=None, kr=None):
         self.dims = len(sig)
+        self.kr = kr
         self.sig = np.divide(sig, np.absolute(sig)).astype(int)
         self.firstIdx = firstIdx
 
@@ -672,7 +673,6 @@ class Layout(object):
             # odd permutation
             idx = self.bladeTupList.index(self.odd[newBlade])
             mul = -mul
-
         element = np.zeros((self.gaDims,), dtype=int)
         element[idx] = mul
 
@@ -692,6 +692,10 @@ class Layout(object):
 
         for i in range(self.gaDims):
             for j in range(self.gaDims):
+                card = len(list(list(self.bladeTupList[i])) + list(self.bladeTupList[j]))
+                if card not in self.kr:
+                    break
+
                 gmt[i, :, j], idx = self._gmtElement(
                         list(self.bladeTupList[i]), list(self.bladeTupList[j]))
 
@@ -2185,7 +2189,7 @@ def Cl(p=0, q=0, sig=None, names=None, firstIdx=1, mvClass=MultiVector,
         sig = [+1]*p + [-1]*q
 
     bladeTupList = elements(len(sig), firstIdx, kr)
-    layout = Layout(sig, bladeTupList, firstIdx=firstIdx, names=names)
+    layout = Layout(sig, bladeTupList, firstIdx=firstIdx, names=names, kr=kr)
     blades = bases(layout, mvClass)
 
     return layout, blades
