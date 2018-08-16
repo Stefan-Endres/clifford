@@ -481,7 +481,10 @@ class Layout(object):
 
     def __init__(self, sig, bladeTupList, firstIdx=0, names=None, kr=None):
         self.dims = len(sig)
-        self.kr = kr
+        if kr is None:
+            self.kr = range(self.dims)
+        else:
+            self.kr = kr
         self.sig = np.divide(sig, np.absolute(sig)).astype(int)
         self.firstIdx = firstIdx
 
